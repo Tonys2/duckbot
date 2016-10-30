@@ -1,32 +1,38 @@
-from discord.ext import commands
 from discord.ext.commands import Bot
 
-LENNY = '( ͡° ͜ʖ ͡°)'
-GIFF = '༼ つ ◕_◕ ༽つ'
-DISAPPROVAL = 'ಠ_ಠ'
-DONGER = 'ヽ༼ຈل͜ຈ༽ﾉ'
+EMOTES = {
+    'lenny': '( ͡° ͜ʖ ͡°)',
+    'giff': '༼ つ ◕_◕ ༽つ',
+    'disapproval': 'ಠ_ಠ',
+    'donger': 'ヽ༼ຈل͜ຈ༽ﾉ',
+}
 
-
+CLASS_TEMPLATE = '''
+from discord.ext import commands
 class Emotes:
     def __init__(self, bot):
         self.bot = bot
+''' + '{}' * len(EMOTES)
 
-    @commands.command(help=LENNY)
-    async def lenny(self):
-        await self.bot.say(LENNY)
+COMMAND_TEMPLATE = '''
+    @commands.command(help='{emote}')
+    async def {name}(self):
+        await self.bot.say('{emote}')
+'''
 
-    @commands.command(help=GIFF)
-    async def giff(self):
-        await self.bot.say(GIFF)
 
-    @commands.command(help=DISAPPROVAL)
-    async def disapproval(self):
-        await self.bot.say(DISAPPROVAL)
+def generate_class():
+    """I'm so sorry"""
+    command_strings = []
+    for name, emote in EMOTES.items():
+        command = COMMAND_TEMPLATE.format(name=name, emote=emote)
+        command_strings.append(command)
 
-    @commands.command(help=DONGER)
-    async def donger(self):
-        await self.bot.say(DONGER)
+    class_string = CLASS_TEMPLATE.format(*command_strings)
+    # print(class_string)
+    exec(class_string, globals())
 
 
 def setup(bot: Bot):
+    generate_class()
     bot.add_cog(Emotes(bot))
